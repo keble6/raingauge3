@@ -14,6 +14,10 @@ return value
 }
 function clearBit (bitNumber: number, registerAddress: number) {
     value = getRegister(registerAddress)
+    value &= ~(1 << bitNumber)
+}
+function setBit (bitNumber: number, registerAddress: number) {
+    value = getRegister(registerAddress)
     value |= (1 << bitNumber)
 }
 function setRegister (registerAddress: number, value: number) {
@@ -30,9 +34,13 @@ function setRegister (registerAddress: number, value: number) {
     false
     )
 }
+// Test for ACK on the board's INT pin
+function isConnected () {
+	
+}
 let deviceAddress = 0
-let value = 0
 let PU_CTRL = 0
+let value = 0
 let CTRL1 = 1
 let CTRL2 = 2
 let OCAL1_B2 = 3
