@@ -9,8 +9,12 @@ function getRegister (registerAddress: number) {
 }
 function getBit (bitNumber: number, registerAddress: number) {
     value = getRegister(registerAddress)
-    value = value & (1 << bitNumber)
+    value &= (1 << bitNumber)
 return value
+}
+function clearBit (bitNumber: number, registerAddress: number) {
+    value = getRegister(registerAddress)
+    value |= (1 << bitNumber)
 }
 function setRegister (registerAddress: number, value: number) {
     pins.i2cWriteNumber(
@@ -27,6 +31,7 @@ function setRegister (registerAddress: number, value: number) {
     )
 }
 let deviceAddress = 0
+let value = 0
 let PU_CTRL = 0
 let CTRL1 = 1
 let CTRL2 = 2
@@ -50,5 +55,4 @@ let ADCO_B1 = 19
 let ADCO_B0 = 20
 let OTP_B1 = 21
 let OTP_B0 = 22
-let value = 0
 deviceAddress = 42
