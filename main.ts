@@ -16,9 +16,22 @@ function clearBit (bitNumber: number, registerAddress: number) {
     value = getRegister(registerAddress)
     value &= ~(1 << bitNumber)
 }
+function begin (initialize: boolean) {
+    if (isConnected() == 0) {
+        if (isConnected() == 0) {
+            return 0
+        }
+        if (initialize) {
+        	
+        }
+    }
+}
 function setBit (bitNumber: number, registerAddress: number) {
     value = getRegister(registerAddress)
     value |= (1 << bitNumber)
+}
+function reset () {
+    setBit(PU_CTRL_RR, PU_CTRL)
 }
 function setRegister (registerAddress: number, value: number) {
     pins.i2cWriteNumber(
@@ -34,15 +47,26 @@ function setRegister (registerAddress: number, value: number) {
     false
     )
 }
-// Test for ACK on the board's INT pin
+// Test for ACK - dummy for now, casn ubit do this?
 function isConnected () {
-	
+    return 1
 }
+let PU_CTRL_RR = 0
 let deviceAddress = 0
 let PU_CTRL = 0
+PU_CTRL = 0
 let value = 0
 let CTRL1 = 1
+let CTRL1_GAIN = 2
+let CTRL1_VLDO = 5
+let CTRL1_DRDY_SEL = 6
+let CTRL1_CRP = 7
 let CTRL2 = 2
+let CTRL2_CALMOD = 0
+let CTRL2_CALS = 2
+let CTRL2_CAL_ERROR = 3
+let CTRL2_CRS = 4
+let CTRL2_CHS = 7
 let OCAL1_B2 = 3
 let OCAL1_B1 = 4
 let OCAL1_B0 = 5
@@ -64,3 +88,4 @@ let ADCO_B0 = 20
 let OTP_B1 = 21
 let OTP_B0 = 22
 deviceAddress = 42
+PU_CTRL_RR = 0
