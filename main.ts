@@ -19,7 +19,12 @@ function setGain (gainValue: number) {
     return 0
 }
 function setLDO (ldoValue: number) {
-    return 0
+    let PU_CTRL_AVDDS = 0
+    value = getRegister(CTRL1)
+    value &= 0b11000111
+value |= ldoValue << 3
+setRegister(CTRL1, value)
+    return setBit(PU_CTRL_AVDDS, PU_CTRL)
 }
 function clearBit (bitNumber: number, registerAddress: number) {
     value = getRegister(registerAddress)
@@ -37,12 +42,14 @@ function begin (initialize: boolean) {
     if (initialize) {
         result &= reset()
 result &= powerUp()
-result &= setLDO(1)
-result &= setGain(1)
-result &= setSampleRate(1)
-result &= setRegister(1, 1)
+result &= setLDO(LDO_3V3)
+result &= setGain(GAIN_128)
+result &= setSampleRate(SPS_10)
+result &= setRegister(ADC, 0x30)
+result &= setBit(PGA_PWR_PGA_CAP_EN, PGA_PWR)
+result &= calibrateAFE()
     }
-    return 0
+    return result
 }
 function powerUp () {
     return 0
@@ -50,6 +57,7 @@ function powerUp () {
 function setBit (bitNumber: number, registerAddress: number) {
     value = getRegister(registerAddress)
     value |= (1 << bitNumber)
+return setRegister(registerAddress, value)
 }
 function reset () {
     setBit(PU_CTRL_RR, PU_CTRL)
@@ -80,12 +88,16 @@ function isConnected () {
 }
 let PU_CTRL_RR = 0
 let deviceAddress = 0
+let CTRL1 = 0
 let PU_CTRL = 0
-let result = 0
-let value = 0
 let CTRL2_CALMOD = 0
+let value = 0
+let result = 0
+let SPS_10 = 0
+let PGA_CHIP_DIS = 0
+let PGA_PWR_PGA_CURR = 0
 PU_CTRL = 0
-let CTRL1 = 1
+CTRL1 = 1
 let CTRL1_GAIN = 2
 let CTRL1_VLDO = 5
 let CTRL1_DRDY_SEL = 6
@@ -113,7 +125,14 @@ let I2C_Control = 17
 let ADCO_B2 = 18
 let ADCO_B1 = 19
 let ADCO_B0 = 20
+let ADC = 21
 let OTP_B1 = 21
 let OTP_B0 = 22
 deviceAddress = 42
 PU_CTRL_RR = 0
+let LDO_3V3 = 4
+let GAIN_128 = 7
+let PGA_INV = 3
+let PGA_PWR_ADC_CURR = 2
+let PGA_PWR_PGA_CAP_EN = 7
+let PGA_PWR = 28
