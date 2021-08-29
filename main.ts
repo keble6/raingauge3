@@ -16,7 +16,12 @@ function getBit (bitNumber: number, registerAddress: number) {
 return value
 }
 function setGain (gainValue: number) {
-    return 0
+    value = gainValue
+    if (gainValue > 7) {
+        value = 7
+    }
+    value |= 0b11111000
+return setRegister(CTRL1, value)
 }
 function setLDO (ldoValue: number) {
     let PU_CTRL_AVDDS = 0
@@ -52,7 +57,22 @@ result &= calibrateAFE()
     return result
 }
 function powerUp () {
-    return 0
+    let PU_CTRL_PUA = 0
+    let PU_CTRL_PUD = 0
+    setBit(PU_CTRL_PUD, PU_CTRL)
+    setBit(PU_CTRL_PUA, PU_CTRL)
+    counter = 0
+    while (true) {
+        let PU_CTRL_PUR = 0
+        if (getBit(PU_CTRL_PUR, PU_CTRL) == 1) {
+            basic.pause(1)
+            counter += 1
+            if (counter > 100) {
+                return 0
+            }
+        }
+    }
+    return 1
 }
 function setBit (bitNumber: number, registerAddress: number) {
     value = getRegister(registerAddress)
@@ -86,16 +106,17 @@ function setSampleRate (rate: number) {
 function isConnected () {
     return 1
 }
+let counter = 0
 let PU_CTRL_RR = 0
 let deviceAddress = 0
 let CTRL1 = 0
 let PU_CTRL = 0
-let CTRL2_CALMOD = 0
-let value = 0
-let result = 0
-let SPS_10 = 0
-let PGA_CHIP_DIS = 0
 let PGA_PWR_PGA_CURR = 0
+let PGA_CHIP_DIS = 0
+let SPS_10 = 0
+let result = 0
+let value = 0
+let CTRL2_CALMOD = 0
 PU_CTRL = 0
 CTRL1 = 1
 let CTRL1_GAIN = 2
