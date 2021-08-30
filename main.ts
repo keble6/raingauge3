@@ -8,6 +8,11 @@ function getRegister (registerAddress: number) {
     )
     return pins.i2cReadNumber(registerAddress, NumberFormat.UInt8BE, false)
 }
+function getRevisionCode () {
+    // line 228
+    revisionCode = getRegister(DEVICE_REV)
+    return (revisionCode & 0x0F)
+}
 function calibrateAFE () {
     // line 86
     beginCalibrateAFE()
@@ -81,8 +86,6 @@ result &= calibrateAFE()
     return result
 }
 function powerUp () {
-    let PU_CTRL_PUA = 0
-    let PU_CTRL_PUD = 0
     setBit(PU_CTRL_PUD, PU_CTRL)
     setBit(PU_CTRL_PUA, PU_CTRL)
     counter = 0
@@ -97,6 +100,26 @@ function powerUp () {
         }
     }
     return 1
+}
+function getAverage (averageAmount: number) {
+    // line 269
+    total = 0
+    samplesAquired = 0
+    startTime = input.runningTime()
+    while (true) {
+        if (available() == 1) {
+            total += getReading()
+            samplesAquired += 1
+            if (samplesAquired == averageAmount) {
+                break;
+            }
+        } else if (input.runningTime() - startTime > 1000) {
+            return 0
+        }
+        basic.pause(1)
+    }
+    total /= averageAmount
+return total
 }
 // line 155
 function setChannel (channelNumber: number) {
@@ -114,10 +137,16 @@ function setBit (bitNumber: number, registerAddress: number) {
     value |= (1 << bitNumber)
 return setRegister(registerAddress, value)
 }
+function powerDown () {
+    // line 183
+    clearBit(PU_CTRL_PUD, PU_CTRL)
+    return clearBit(PU_CTRL_PUA, PU_CTRL)
+}
 function getReading () {
     // line 236
     // Read 24 bits into 32 bit variable
     valueRaw = pins.i2cReadNumber(ADCO_B2, NumberFormat.UInt32BE, false)
+    return 0
 }
 function reset () {
     // line 190
@@ -177,13 +206,18 @@ let cal_ready = 0
 let Cal_Status = 0
 let t_begin = 0
 let valueRaw = 0
+let startTime = 0
+let samplesAquired = 0
 let counter = 0
+let PU_CTRL_PUA = 0
+let PU_CTRL_PUD = 0
 let CAL_FAILURE = 0
 let CAL_IN_PROGRESS = 0
 let CAL_SUCCESS = 0
 let PU_CTRL_RR = 0
 let deviceAddress = 0
 let ADCO_B2 = 0
+let DEVICE_REV = 0
 let CTRL2_CHS = 0
 let CTRL2_CAL_ERROR = 0
 let CTRL2_CALS = 0
@@ -197,6 +231,8 @@ let result = 0
 let SPS_10 = 0
 let PGA_CHIP_DIS = 0
 let PGA_PWR_PGA_CURR = 0
+let revisionCode = 0
+let total = 0
 PU_CTRL_CR = 5
 PU_CTRL = 0
 CTRL1 = 1
@@ -209,6 +245,7 @@ CTRL2_CALS = 2
 CTRL2_CAL_ERROR = 3
 let CTRL2_CRS = 4
 CTRL2_CHS = 7
+DEVICE_REV = 31
 let OCAL1_B2 = 3
 let OCAL1_B1 = 4
 let OCAL1_B0 = 5
