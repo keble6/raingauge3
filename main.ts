@@ -1,4 +1,5 @@
 function getRegister (registerAddress: number) {
+    // line 384
     pins.i2cWriteNumber(
     deviceAddress,
     registerAddress,
@@ -8,15 +9,18 @@ function getRegister (registerAddress: number) {
     return pins.i2cReadNumber(registerAddress, NumberFormat.UInt8BE, false)
 }
 function calibrateAFE () {
+    // line 86
     beginCalibrateAFE()
     return waitForCalibrateAFE(1000)
 }
 function getBit (bitNumber: number, registerAddress: number) {
+    // line 376
     value = getRegister(registerAddress)
     value &= (1 << bitNumber)
 return value
 }
 function setGain (gainValue: number) {
+    // line 215
     value = gainValue
     if (gainValue > 7) {
         value = 7
@@ -24,6 +28,7 @@ function setGain (gainValue: number) {
     value |= 0b11111000
 return setRegister(CTRL1, value)
 }
+// line 199
 function setLDO (ldoValue: number) {
     let PU_CTRL_AVDDS = 0
     value = getRegister(CTRL1)
@@ -33,14 +38,17 @@ setRegister(CTRL1, value)
     return setBit(PU_CTRL_AVDDS, PU_CTRL)
 }
 function clearBit (bitNumber: number, registerAddress: number) {
+    // line 368
     value = getRegister(registerAddress)
     value &= ~(1 << bitNumber)
 return setRegister(registerAddress, value)
 }
 function beginCalibrateAFE () {
+    // line 94
     setBit(CTRL2_CALS, CTRL2)
 }
 function calAFEStatus () {
+    // line 100
     if (getBit(CTRL2_CALS, CTRL2) == 1) {
         return CAL_IN_PROGRESS
     } else if (getBit(CTRL2_CAL_ERROR, CTRL2) == 1) {
@@ -48,6 +56,9 @@ function calAFEStatus () {
     } else {
         return CAL_SUCCESS
     }
+}
+function available () {
+    return getBit(PU_CTRL_CR, PU_CTRL)
 }
 function begin (initialize: boolean) {
     if (isConnected() == 0) {
@@ -87,6 +98,7 @@ function powerUp () {
     }
     return 1
 }
+// line 155
 function setChannel (channelNumber: number) {
     let CHANNEL_1 = 0
     if (channelNumber == CHANNEL_1) {
@@ -97,16 +109,24 @@ function setChannel (channelNumber: number) {
     }
 }
 function setBit (bitNumber: number, registerAddress: number) {
+    // line 360
     value = getRegister(registerAddress)
     value |= (1 << bitNumber)
 return setRegister(registerAddress, value)
 }
+function getReading () {
+    // line 236
+    // Read 24 bits into 32 bit variable
+    valueRaw = pins.i2cReadNumber(ADCO_B2, NumberFormat.UInt32BE, false)
+}
 function reset () {
+    // line 190
     setBit(PU_CTRL_RR, PU_CTRL)
     basic.pause(1)
     return clearBit(PU_CTRL_RR, PU_CTRL)
 }
 function setRegister (registerAddress: number, value: number) {
+    // line 401
     pins.i2cWriteNumber(
     deviceAddress,
     registerAddress,
@@ -122,6 +142,7 @@ function setRegister (registerAddress: number, value: number) {
     return 1
 }
 function setSampleRate (rate: number) {
+    // line 142
     value = getRegister(CTRL2)
     value &= 0b10001111
 value |= rate << 4
@@ -129,9 +150,11 @@ return setRegister(CTRL2, value)
 }
 // Test for ACK - dummy for now, casn ubit do this?
 function isConnected () {
+    // line 69
     return 1
 }
 function waitForCalibrateAFE (timeout_ms: number) {
+    // line 119
     t_begin = input.runningTime()
     Cal_Status = 0
     while (true) {
@@ -153,24 +176,28 @@ function waitForCalibrateAFE (timeout_ms: number) {
 let cal_ready = 0
 let Cal_Status = 0
 let t_begin = 0
+let valueRaw = 0
 let counter = 0
 let CAL_FAILURE = 0
 let CAL_IN_PROGRESS = 0
 let CAL_SUCCESS = 0
 let PU_CTRL_RR = 0
 let deviceAddress = 0
+let ADCO_B2 = 0
 let CTRL2_CHS = 0
 let CTRL2_CAL_ERROR = 0
 let CTRL2_CALS = 0
 let CTRL2 = 0
 let CTRL1 = 0
 let PU_CTRL = 0
-let PGA_PWR_PGA_CURR = 0
-let PGA_CHIP_DIS = 0
-let SPS_10 = 0
-let result = 0
-let value = 0
+let PU_CTRL_CR = 0
 let CTRL2_CALMOD = 0
+let value = 0
+let result = 0
+let SPS_10 = 0
+let PGA_CHIP_DIS = 0
+let PGA_PWR_PGA_CURR = 0
+PU_CTRL_CR = 5
 PU_CTRL = 0
 CTRL1 = 1
 let CTRL1_GAIN = 2
@@ -197,7 +224,7 @@ let GCAL2_B2 = 14
 let GCAL2_B1 = 15
 let GCAL2_B0 = 16
 let I2C_Control = 17
-let ADCO_B2 = 18
+ADCO_B2 = 18
 let ADCO_B1 = 19
 let ADCO_B0 = 20
 let ADC = 21
