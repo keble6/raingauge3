@@ -8,6 +8,7 @@ function getRegister (registerAddress: number) {
     return pins.i2cReadNumber(registerAddress, NumberFormat.UInt8BE, false)
 }
 function calibrateAFE () {
+    beginCalibrateAFE()
     return 0
 }
 function getBit (bitNumber: number, registerAddress: number) {
@@ -35,6 +36,18 @@ function clearBit (bitNumber: number, registerAddress: number) {
     value = getRegister(registerAddress)
     value &= ~(1 << bitNumber)
 return setRegister(registerAddress, value)
+}
+function beginCalibrateAFE () {
+    setBit(CTRL2_CALS, CTRL2)
+}
+function calAFEStatus () {
+    if (getBit(CTRL2_CALS, CTRL2) == 1) {
+        return CAL_IN_PROGRESS
+    } else if (getBit(CTRL2_CAL_ERROR, CTRL2) == 1) {
+        return CAL_FAILURE
+    } else {
+        return CAL_SUCCESS
+    }
 }
 function begin (initialize: boolean) {
     if (isConnected() == 0) {
@@ -106,9 +119,37 @@ function setSampleRate (rate: number) {
 function isConnected () {
     return 1
 }
+function waitForCalibrateAFE (timeout_ms: number) {
+    t_begin = input.runningTime()
+    Cal_Status = 0
+    while (true) {
+        cal_ready = calAFEStatus()
+        if (cal_ready == CAL_IN_PROGRESS) {
+            if (timeout_ms > 0) {
+                if (input.runningTime() - t_begin > timeout_ms) {
+                    break;
+                }
+            }
+        }
+        basic.pause(1)
+    }
+    if (cal_ready == CAL_SUCCESS) {
+        return 1
+    }
+    return 0
+}
+let cal_ready = 0
+let Cal_Status = 0
+let t_begin = 0
 let counter = 0
+let CAL_FAILURE = 0
+let CAL_IN_PROGRESS = 0
+let CAL_SUCCESS = 0
 let PU_CTRL_RR = 0
 let deviceAddress = 0
+let CTRL2_CAL_ERROR = 0
+let CTRL2_CALS = 0
+let CTRL2 = 0
 let CTRL1 = 0
 let PU_CTRL = 0
 let PGA_PWR_PGA_CURR = 0
@@ -123,9 +164,9 @@ let CTRL1_GAIN = 2
 let CTRL1_VLDO = 5
 let CTRL1_DRDY_SEL = 6
 let CTRL1_CRP = 7
-let CTRL2 = 2
-let CTRL2_CALS = 2
-let CTRL2_CAL_ERROR = 3
+CTRL2 = 2
+CTRL2_CALS = 2
+CTRL2_CAL_ERROR = 3
 let CTRL2_CRS = 4
 let CTRL2_CHS = 7
 let OCAL1_B2 = 3
@@ -157,3 +198,6 @@ let PGA_INV = 3
 let PGA_PWR_ADC_CURR = 2
 let PGA_PWR_PGA_CAP_EN = 7
 let PGA_PWR = 28
+CAL_SUCCESS = 0
+CAL_IN_PROGRESS = 1
+CAL_FAILURE = 2
