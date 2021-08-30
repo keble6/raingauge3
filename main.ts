@@ -33,6 +33,10 @@ function setGain (gainValue: number) {
     value |= 0b11111000
 return setRegister(CTRL1, value)
 }
+function setZeroOffset (newZeroOffset: number) {
+    // line 299
+    _zeroOffset = newZeroOffset
+}
 // line 199
 function setLDO (ldoValue: number) {
     let PU_CTRL_AVDDS = 0
@@ -64,6 +68,10 @@ function calAFEStatus () {
 }
 function available () {
     return getBit(PU_CTRL_CR, PU_CTRL)
+}
+function calculateZeroOffset (averageAmount: number) {
+    // line 293
+    setZeroOffset(getAverage(averageAmount))
 }
 function begin (initialize: boolean) {
     if (isConnected() == 0) {
@@ -130,6 +138,10 @@ function setChannel (channelNumber: number) {
     } else {
         return setBit(CTRL2_CHS, CTRL2)
     }
+}
+function getZeroOffset () {
+    // line 304
+    return _zeroOffset
 }
 function setBit (bitNumber: number, registerAddress: number) {
     // line 360
@@ -211,6 +223,7 @@ let samplesAquired = 0
 let counter = 0
 let PU_CTRL_PUA = 0
 let PU_CTRL_PUD = 0
+let _zeroOffset = 0
 let CAL_FAILURE = 0
 let CAL_IN_PROGRESS = 0
 let CAL_SUCCESS = 0
