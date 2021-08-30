@@ -9,7 +9,7 @@ function getRegister (registerAddress: number) {
 }
 function calibrateAFE () {
     beginCalibrateAFE()
-    return 0
+    return waitForCalibrateAFE(1000)
 }
 function getBit (bitNumber: number, registerAddress: number) {
     value = getRegister(registerAddress)
@@ -87,6 +87,15 @@ function powerUp () {
     }
     return 1
 }
+function setChannel (channelNumber: number) {
+    let CHANNEL_1 = 0
+    if (channelNumber == CHANNEL_1) {
+        // Channel 1 default
+        return clearBit(CTRL2_CHS, CTRL2)
+    } else {
+        return setBit(CTRL2_CHS, CTRL2)
+    }
+}
 function setBit (bitNumber: number, registerAddress: number) {
     value = getRegister(registerAddress)
     value |= (1 << bitNumber)
@@ -113,7 +122,10 @@ function setRegister (registerAddress: number, value: number) {
     return 1
 }
 function setSampleRate (rate: number) {
-    return 0
+    value = getRegister(CTRL2)
+    value &= 0b10001111
+value |= rate << 4
+return setRegister(CTRL2, value)
 }
 // Test for ACK - dummy for now, casn ubit do this?
 function isConnected () {
@@ -147,6 +159,7 @@ let CAL_IN_PROGRESS = 0
 let CAL_SUCCESS = 0
 let PU_CTRL_RR = 0
 let deviceAddress = 0
+let CTRL2_CHS = 0
 let CTRL2_CAL_ERROR = 0
 let CTRL2_CALS = 0
 let CTRL2 = 0
@@ -168,7 +181,7 @@ CTRL2 = 2
 CTRL2_CALS = 2
 CTRL2_CAL_ERROR = 3
 let CTRL2_CRS = 4
-let CTRL2_CHS = 7
+CTRL2_CHS = 7
 let OCAL1_B2 = 3
 let OCAL1_B1 = 4
 let OCAL1_B0 = 5
@@ -201,3 +214,4 @@ let PGA_PWR = 28
 CAL_SUCCESS = 0
 CAL_IN_PROGRESS = 1
 CAL_FAILURE = 2
+let CHANNEL_2 = 1
