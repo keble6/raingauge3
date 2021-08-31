@@ -39,7 +39,7 @@ function setZeroOffset (newZeroOffset: number) {
 }
 // line 199
 function setLDO (ldoValue: number) {
-    let PU_CTRL_AVDDS = 0
+    let PU_CTRL_AVDDS: null = null
     value = getRegister(CTRL1)
     value &= 0b11000111
 value |= ldoValue << 3
@@ -112,7 +112,7 @@ function powerUp () {
     setBit(PU_CTRL_PUA, PU_CTRL)
     counter = 0
     while (true) {
-        let PU_CTRL_PUR = 0
+        let PU_CTRL_PUR: null = null
         if (getBit(PU_CTRL_PUR, PU_CTRL) == 1) {
             basic.pause(1)
             counter += 1
@@ -149,7 +149,7 @@ function setCalibrationFactor (newCalFactor: number) {
 }
 // line 155
 function setChannel (channelNumber: number) {
-    let CHANNEL_1 = 0
+    let CHANNEL_1: null = null
     if (channelNumber == CHANNEL_1) {
         // Channel 1 default
         return clearBit(CTRL2_CHS, CTRL2)
@@ -181,13 +181,21 @@ function powerDown () {
     return clearBit(PU_CTRL_PUA, PU_CTRL)
 }
 function getReading () {
-    // line 236
-    // Read 24 bits into 32 bit variable
-    valueRaw = pins.i2cReadNumber(ADCO_B2, NumberFormat.UInt32BE, false)
-    return 0
+    // Send register address
+    pins.i2cWriteNumber(
+    deviceAddress,
+    ADCO_B2,
+    NumberFormat.UInt8BE,
+    false
+    )
+    valueRaw = pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false) << 16
+valueRaw |= pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false) << 8
+valueRaw |= pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false)
+let valueShifted = valueRaw << 8
+return valueShifted >> 8
 }
 function reset () {
-    let PU_CTRL_RR = 0
+    let PU_CTRL_RR: null = null
     // line 190
     setBit(PU_CTRL_RR, PU_CTRL)
     basic.pause(1)
@@ -259,41 +267,41 @@ function waitForCalibrateAFE (timeout_ms: number) {
 /**
  * register bits
  */
-let cal_ready = 0
-let Cal_Status = 0
-let t_begin = 0
-let newCalFactor = 0
-let valueRaw = 0
-let startTime = 0
-let samplesAquired = 0
-let counter = 0
-let CAL_SUCCESS = 0
-let _calibrationFactor = 0
-let onScale = 0
-let PU_CTRL = 0
-let _zeroOffset = 0
-let CAL_IN_PROGRESS = 0
-let CAL_FAILURE = 0
-let CTRL2_CHS = 0
-let CTRL2_CAL_ERROR = 0
-let CTRL2_CALS = 0
-let CTRL1_CRP = 0
-let PU_CTRL_CR = 0
-let PU_CTRL_PUA = 0
-let PU_CTRL_PUD = 0
-let DEVICE_REV = 0
-let ADCO_B2 = 0
-let CTRL2 = 0
-let CTRL1 = 0
-let deviceAddress = 0
-let PGA_PWR_PGA_CURR = 0
-let CHANNEL_12 = 0
-let PGA_CHIP_DIS = 0
-let SPS_10 = 0
-let value = 0
-let result = 0
-let revisionCode = 0
+let cal_ready: null = null
+let Cal_Status: null = null
+let t_begin: null = null
+let newCalFactor: null = null
+let startTime: null = null
+let samplesAquired: null = null
+let counter: null = null
+let CAL_SUCCESS: null = null
+let _calibrationFactor: null = null
+let onScale: null = null
+let PU_CTRL: null = null
+let _zeroOffset: null = null
+let CAL_IN_PROGRESS: null = null
+let CAL_FAILURE: null = null
+let CTRL2_CHS: null = null
+let CTRL2_CAL_ERROR: null = null
+let CTRL2_CALS: null = null
+let CTRL1_CRP: null = null
+let PU_CTRL_CR: null = null
+let PU_CTRL_PUA: null = null
+let PU_CTRL_PUD: null = null
+let DEVICE_REV: null = null
+let ADCO_B2: null = null
+let CTRL2: null = null
+let CTRL1: null = null
 let total = 0
+let revisionCode = 0
+let result = 0
+let value = 0
+let SPS_10 = 0
+let PGA_CHIP_DIS = 0
+let CHANNEL_12 = 0
+let PGA_PWR_PGA_CURR = 0
+let deviceAddress = 0
+let valueRaw = 0
 let LDO_3V3 = 4
 let GAIN_128 = 7
 let CHANNEL_2 = 1
