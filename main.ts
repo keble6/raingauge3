@@ -129,6 +129,10 @@ function getAverage (averageAmount: number) {
     total /= averageAmount
 return total
 }
+function setCalibrationFactor (newCalFactor: number) {
+    // line 319
+    _calibrationFactor = newCalFactor
+}
 // line 155
 function setChannel (channelNumber: number) {
     let CHANNEL_1 = 0
@@ -142,6 +146,10 @@ function setChannel (channelNumber: number) {
 function getZeroOffset () {
     // line 304
     return _zeroOffset
+}
+function getCalibrationFactor () {
+    // line324
+    return _calibrationFactor
 }
 function setBit (bitNumber: number, registerAddress: number) {
     // line 360
@@ -189,6 +197,12 @@ function setSampleRate (rate: number) {
 value |= rate << 4
 return setRegister(CTRL2, value)
 }
+function calculateCalibrationFactor (weightOnScale: number, averageAmount: number) {
+    // line 310
+    onScale = getAverage(averageAmount)
+    newCalFactor = (onScale - _zeroOffset) / weightOnScale
+    setCalibrationFactor(newCalFactor)
+}
 // Test for ACK - dummy for now, casn ubit do this?
 function isConnected () {
     // line 69
@@ -217,7 +231,10 @@ function waitForCalibrateAFE (timeout_ms: number) {
 let cal_ready = 0
 let Cal_Status = 0
 let t_begin = 0
+let newCalFactor = 0
+let onScale = 0
 let valueRaw = 0
+let _calibrationFactor = 0
 let startTime = 0
 let samplesAquired = 0
 let counter = 0
@@ -238,14 +255,14 @@ let CTRL2 = 0
 let CTRL1 = 0
 let PU_CTRL = 0
 let PU_CTRL_CR = 0
-let CTRL2_CALMOD = 0
-let value = 0
-let result = 0
-let SPS_10 = 0
-let PGA_CHIP_DIS = 0
-let PGA_PWR_PGA_CURR = 0
-let revisionCode = 0
 let total = 0
+let revisionCode = 0
+let PGA_PWR_PGA_CURR = 0
+let PGA_CHIP_DIS = 0
+let SPS_10 = 0
+let result = 0
+let value = 0
+let CTRL2_CALMOD = 0
 PU_CTRL_CR = 5
 PU_CTRL = 0
 CTRL1 = 1
