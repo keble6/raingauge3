@@ -52,6 +52,20 @@ function clearBit (bitNumber: number, registerAddress: number) {
     value &= ~(1 << bitNumber)
 return setRegister(registerAddress, value)
 }
+function setIntPolarityHigh () {
+    // line 348
+    return clearBit(CTRL1_CRP, CTRL1)
+}
+function getWeight (allowNegativeWeights: boolean, samplesToTake: number) {
+    // line 330
+    onScale = getAverage(samplesToTake)
+    if (!(allowNegativeWeights)) {
+        if (onScale < _zeroOffset) {
+            onScale = _zeroOffset
+        }
+    }
+    return (onScale - _zeroOffset) / _calibrationFactor
+}
 function beginCalibrateAFE () {
     // line 94
     setBit(CTRL2_CALS, CTRL2)
@@ -157,6 +171,10 @@ function setBit (bitNumber: number, registerAddress: number) {
     value |= (1 << bitNumber)
 return setRegister(registerAddress, value)
 }
+function setIntPolarityLow () {
+    // line 353
+    return setBit(CTRL1_CRP, CTRL1)
+}
 function powerDown () {
     // line 183
     clearBit(PU_CTRL_PUD, PU_CTRL)
@@ -232,14 +250,14 @@ let cal_ready = 0
 let Cal_Status = 0
 let t_begin = 0
 let newCalFactor = 0
-let onScale = 0
 let valueRaw = 0
-let _calibrationFactor = 0
 let startTime = 0
 let samplesAquired = 0
 let counter = 0
 let PU_CTRL_PUA = 0
 let PU_CTRL_PUD = 0
+let _calibrationFactor = 0
+let onScale = 0
 let _zeroOffset = 0
 let CAL_FAILURE = 0
 let CAL_IN_PROGRESS = 0
@@ -252,6 +270,7 @@ let CTRL2_CHS = 0
 let CTRL2_CAL_ERROR = 0
 let CTRL2_CALS = 0
 let CTRL2 = 0
+let CTRL1_CRP = 0
 let CTRL1 = 0
 let PU_CTRL = 0
 let PU_CTRL_CR = 0
@@ -269,7 +288,7 @@ CTRL1 = 1
 let CTRL1_GAIN = 2
 let CTRL1_VLDO = 5
 let CTRL1_DRDY_SEL = 6
-let CTRL1_CRP = 7
+CTRL1_CRP = 7
 CTRL2 = 2
 CTRL2_CALS = 2
 CTRL2_CAL_ERROR = 3
