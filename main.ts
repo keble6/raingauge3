@@ -58,7 +58,7 @@ function setIntPolarityHigh () {
 }
 function getWeight (allowNegativeWeights: boolean, samplesToTake: number) {
     // line 330
-    onScale = getAverage(samplesToTake)
+    let onScale = getAverage(samplesToTake)
     if (!(allowNegativeWeights)) {
         if (onScale < _zeroOffset) {
             onScale = _zeroOffset
@@ -110,7 +110,7 @@ result &= calibrateAFE()
 function powerUp () {
     setBit(PU_CTRL_PUD, PU_CTRL)
     setBit(PU_CTRL_PUA, PU_CTRL)
-    counter = 0
+    let counter = 0
     while (true) {
         let PU_CTRL_PUR: null = null
         if (getBit(PU_CTRL_PUR, PU_CTRL) == 1) {
@@ -126,8 +126,8 @@ function powerUp () {
 function getAverage (averageAmount: number) {
     // line 269
     total = 0
-    samplesAquired = 0
-    startTime = input.runningTime()
+    let samplesAquired = 0
+    let startTime = input.runningTime()
     while (true) {
         if (available() == 1) {
             total += getReading()
@@ -226,8 +226,8 @@ return setRegister(CTRL2, value)
 }
 function calculateCalibrationFactor (weightOnScale: number, averageAmount: number) {
     // line 310
-    onScale = getAverage(averageAmount)
-    newCalFactor = (onScale - _zeroOffset) / weightOnScale
+    let onScale = getAverage(averageAmount)
+    let newCalFactor = (onScale - _zeroOffset) / weightOnScale
     setCalibrationFactor(newCalFactor)
 }
 // Test for ACK - dummy for now, casn ubit do this?
@@ -237,7 +237,7 @@ function isConnected () {
 }
 function waitForCalibrateAFE (timeout_ms: number) {
     // line 119
-    t_begin = input.runningTime()
+    let t_begin = input.runningTime()
     Cal_Status = 0
     while (true) {
         cal_ready = calAFEStatus()
@@ -267,7 +267,9 @@ function waitForCalibrateAFE (timeout_ms: number) {
 /**
  * register bits
  */
-let cal_ready: null = null
+let _zeroOffset
+let _calibrationFactor
+let cal_ready
 let Cal_Status: null = null
 let t_begin: null = null
 let newCalFactor: null = null
@@ -275,21 +277,8 @@ let startTime: null = null
 let samplesAquired: null = null
 let counter: null = null
 let CAL_SUCCESS: null = null
-let _calibrationFactor: null = null
 let onScale: null = null
 let PU_CTRL: null = null
-let _zeroOffset: null = null
-let CAL_IN_PROGRESS: null = null
-let CAL_FAILURE: null = null
-let CTRL2_CHS: null = null
-let CTRL2_CAL_ERROR: null = null
-let CTRL2_CALS: null = null
-let CTRL1_CRP: null = null
-let PU_CTRL_CR: null = null
-let PU_CTRL_PUA: null = null
-let PU_CTRL_PUD: null = null
-let DEVICE_REV: null = null
-let ADCO_B2: null = null
 let CTRL2: null = null
 let CTRL1: null = null
 let total = 0
@@ -307,8 +296,6 @@ let GAIN_128 = 7
 let CHANNEL_2 = 1
 // I2C addresses
 deviceAddress = 42
-CTRL1 = 1
-CTRL2 = 2
 let OCAL1_B2 = 3
 let OCAL1_B1 = 4
 let OCAL1_B0 = 5
@@ -324,7 +311,7 @@ let GCAL2_B2 = 14
 let GCAL2_B1 = 15
 let GCAL2_B0 = 16
 let I2C_Control = 17
-ADCO_B2 = 18
+let ADCO_B2 = 18
 let ADCO_B1 = 19
 let ADCO_B0 = 20
 // shared with OTP_B1
@@ -332,24 +319,24 @@ let ADC = 21
 let OTP_B1 = 21
 let OTP_B0 = 22
 let PGA_PWR = 28
-DEVICE_REV = 31
-PU_CTRL_PUD = 1
-PU_CTRL_PUA = 2
+let DEVICE_REV = 31
+let PU_CTRL_PUD = 1
+let PU_CTRL_PUA = 2
 let PU_CTRL_CS = 4
-PU_CTRL_CR = 5
+let PU_CTRL_CR = 5
 let PU_CTRL_OSCS = 6
 let PU_CTRL_AVDDS2 = 7
 let CTRL1_GAIN = 2
 let CTRL1_VLDO = 5
-CTRL1_CRP = 7
+let CTRL1_CRP = 7
 let CTRL2_CALMOD = 1
-CTRL2_CALS = 2
+let CTRL2_CALS = 2
 let CTRL2_CRS = 6
-CTRL2_CAL_ERROR = 3
-CTRL2_CHS = 7
+let CTRL2_CAL_ERROR = 3
+let CTRL2_CHS = 7
 let PGA_PWR_ADC_CURR = 2
 let PGA_INV = 3
 let PGA_PWR_PGA_CAP_EN = 7
 // status codes
-CAL_FAILURE = 2
-CAL_IN_PROGRESS = 1
+let CAL_FAILURE = 2
+let CAL_IN_PROGRESS = 1
