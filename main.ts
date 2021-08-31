@@ -187,6 +187,7 @@ function getReading () {
     return 0
 }
 function reset () {
+    let PU_CTRL_RR = 0
     // line 190
     setBit(PU_CTRL_RR, PU_CTRL)
     basic.pause(1)
@@ -246,6 +247,18 @@ function waitForCalibrateAFE (timeout_ms: number) {
     }
     return 0
 }
+/**
+ * variables
+ */
+/**
+ * 10 samples/second
+ */
+/**
+ * register addresses
+ */
+/**
+ * register bits
+ */
 let cal_ready = 0
 let Cal_Status = 0
 let t_begin = 0
@@ -254,47 +267,40 @@ let valueRaw = 0
 let startTime = 0
 let samplesAquired = 0
 let counter = 0
-let PU_CTRL_PUA = 0
-let PU_CTRL_PUD = 0
+let CAL_SUCCESS = 0
 let _calibrationFactor = 0
 let onScale = 0
+let PU_CTRL = 0
 let _zeroOffset = 0
-let CAL_FAILURE = 0
 let CAL_IN_PROGRESS = 0
-let CAL_SUCCESS = 0
-let PU_CTRL_RR = 0
-let deviceAddress = 0
-let ADCO_B2 = 0
-let DEVICE_REV = 0
+let CAL_FAILURE = 0
 let CTRL2_CHS = 0
 let CTRL2_CAL_ERROR = 0
 let CTRL2_CALS = 0
-let CTRL2 = 0
 let CTRL1_CRP = 0
-let CTRL1 = 0
-let PU_CTRL = 0
 let PU_CTRL_CR = 0
-let total = 0
-let revisionCode = 0
+let PU_CTRL_PUA = 0
+let PU_CTRL_PUD = 0
+let DEVICE_REV = 0
+let ADCO_B2 = 0
+let CTRL2 = 0
+let CTRL1 = 0
+let deviceAddress = 0
 let PGA_PWR_PGA_CURR = 0
+let CHANNEL_12 = 0
 let PGA_CHIP_DIS = 0
 let SPS_10 = 0
-let result = 0
 let value = 0
-let CTRL2_CALMOD = 0
-PU_CTRL_CR = 5
-PU_CTRL = 0
+let result = 0
+let revisionCode = 0
+let total = 0
+let LDO_3V3 = 4
+let GAIN_128 = 7
+let CHANNEL_2 = 1
+// I2C addresses
+deviceAddress = 42
 CTRL1 = 1
-let CTRL1_GAIN = 2
-let CTRL1_VLDO = 5
-let CTRL1_DRDY_SEL = 6
-CTRL1_CRP = 7
 CTRL2 = 2
-CTRL2_CALS = 2
-CTRL2_CAL_ERROR = 3
-let CTRL2_CRS = 4
-CTRL2_CHS = 7
-DEVICE_REV = 31
 let OCAL1_B2 = 3
 let OCAL1_B1 = 4
 let OCAL1_B0 = 5
@@ -313,18 +319,29 @@ let I2C_Control = 17
 ADCO_B2 = 18
 let ADCO_B1 = 19
 let ADCO_B0 = 20
+// shared with OTP_B1
 let ADC = 21
 let OTP_B1 = 21
 let OTP_B0 = 22
-deviceAddress = 42
-PU_CTRL_RR = 0
-let LDO_3V3 = 4
-let GAIN_128 = 7
-let PGA_INV = 3
-let PGA_PWR_ADC_CURR = 2
-let PGA_PWR_PGA_CAP_EN = 7
 let PGA_PWR = 28
-CAL_SUCCESS = 0
-CAL_IN_PROGRESS = 1
+DEVICE_REV = 31
+PU_CTRL_PUD = 1
+PU_CTRL_PUA = 2
+let PU_CTRL_CS = 4
+PU_CTRL_CR = 5
+let PU_CTRL_OSCS = 6
+let PU_CTRL_AVDDS2 = 7
+let CTRL1_GAIN = 2
+let CTRL1_VLDO = 5
+CTRL1_CRP = 7
+let CTRL2_CALMOD = 1
+CTRL2_CALS = 2
+let CTRL2_CRS = 6
+CTRL2_CAL_ERROR = 3
+CTRL2_CHS = 7
+let PGA_PWR_ADC_CURR = 2
+let PGA_INV = 3
+let PGA_PWR_PGA_CAP_EN = 7
+// status codes
 CAL_FAILURE = 2
-let CHANNEL_2 = 1
+CAL_IN_PROGRESS = 1
