@@ -334,3 +334,15 @@ let CHANNEL_12 = 0
 let CAL_FAILURE = 2
 let CAL_IN_PROGRESS = 1
 let CAL_SUCCESS = 0
+
+//test I2C
+// Need to add debug in begin code!
+basic.forever(function () {
+    //let beginResult = begin(true)
+    //serial.writeLine("begin() =" + beginResult)
+
+    let code = getRevisionCode()
+    basic.pause(5000)
+    serial.writeLine("rev code =" + code)
+
+})
