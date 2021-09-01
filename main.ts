@@ -196,13 +196,12 @@ function getReading () {
     false
     )
     valueRaw = pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false) << 16
-valueRaw |= pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false) << 8
-valueRaw |= pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false)
-let valueShifted = valueRaw << 8
-return valueShifted >> 8
+    valueRaw |= pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false) << 8
+    valueRaw |= pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false)
+    let valueShifted = valueRaw << 8
+    return valueShifted >> 8
 }
 function reset () {
-    let PU_CTRL_RR: null = null
     // line 190
     setBit(PU_CTRL_RR, PU_CTRL)
     basic.pause(1)
@@ -226,9 +225,12 @@ function setRegister (registerAddress: number, value: number) {
 }
 function setSampleRate (rate: number) {
     // line 142
-    value = getRegister(CTRL2)
-    value &= 0b10001111
-value |= rate << 4
+    if(rate> 0b111){
+        rate = 0b111
+    }
+    let value = getRegister(CTRL2)
+    value &= 0b10001111 ///clear CRS bits
+    value |= rate << 4  //Mask in new CRS bits
 return setRegister(CTRL2, value)
 }
 function calculateCalibrationFactor (weightOnScale: number, averageAmount: number) {
@@ -245,18 +247,17 @@ function isConnected () {
 function waitForCalibrateAFE (timeout_ms: number) {
     // line 119
     let t_begin = input.runningTime()
+    let cal_ready = 0
     while (true) {
         cal_ready = getBit(CTRL2_CALS, CTRL2) //new code to circumvent typedef
         if (cal_ready == CAL_IN_PROGRESS) {
-            if (timeout_ms > 0) {
-                if (input.runningTime() - t_begin > timeout_ms) {
+            if ((timeout_ms > 0) && (input.runningTime() - t_begin > timeout_ms)) {
                     break;
-                }
             }
         }
         basic.pause(1)
     }
-    if (getBit(CTRL2_CAL_ERROR, CTRL2) == CAL_SUCCESS) {
+    if (cal_ready == CAL_SUCCESS) {
         return 1
     }
     return 0
@@ -264,37 +265,11 @@ function waitForCalibrateAFE (timeout_ms: number) {
 /**
  * variables
  */
-/**
- * 10 samples/second
- */
-/**
- * register addresses
- */
-/**
- * register bits
- */
 let _zeroOffset
 let _calibrationFactor
-let cal_ready
-let Cal_Status: null = null
-let t_begin: null = null
-let newCalFactor: null = null
-let startTime: null = null
-let samplesAquired: null = null
-let counter: null = null
-let CAL_SUCCESS: null = null
-let onScale: null = null
-let PU_CTRL: null = null
-let CTRL2: null = null
-let CTRL1: null = null
 let total = 0
 let revisionCode = 0
-let result = 0
-let value = 0
-let SPS_10 = 0
-let PGA_CHIP_DIS = 0
-let CHANNEL_12 = 0
-let PGA_PWR_PGA_CURR = 0
+
 let deviceAddress = 0
 let valueRaw = 0
 let LDO_3V3 = 4
@@ -302,6 +277,9 @@ let GAIN_128 = 7
 let CHANNEL_2 = 1
 // I2C addresses
 deviceAddress = 42
+let PU_CTRL = 0
+let CTRL1 = 1
+let CTRL2 = 2
 let OCAL1_B2 = 3
 let OCAL1_B1 = 4
 let OCAL1_B0 = 5
@@ -326,6 +304,8 @@ let OTP_B1 = 21
 let OTP_B0 = 22
 let PGA_PWR = 28
 let DEVICE_REV = 31
+//register bits
+let PU_CTRL_RR = 0
 let PU_CTRL_PUD = 1
 let PU_CTRL_PUA = 2
 let PU_CTRL_PUR = 3
@@ -341,9 +321,15 @@ let CTRL2_CALS = 2
 let CTRL2_CRS = 6
 let CTRL2_CAL_ERROR = 3
 let CTRL2_CHS = 7
+let PGA_PWR_PGA_CURR = 0
 let PGA_PWR_ADC_CURR = 2
+let PGA_CHIP_DIS = 0
 let PGA_INV = 3
 let PGA_PWR_PGA_CAP_EN = 7
+let SPS_10 = 0
+
+let CHANNEL_12 = 0
+
 // status codes
 let CAL_FAILURE = 2
 let CAL_IN_PROGRESS = 1
