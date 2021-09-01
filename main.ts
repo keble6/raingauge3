@@ -174,9 +174,9 @@ function getCalibrationFactor () {
 }
 function setBit (bitNumber: number, registerAddress: number) {
     // line 360
-    value = getRegister(registerAddress)
+    let value = getRegister(registerAddress)
     value |= (1 << bitNumber)
-return setRegister(registerAddress, value)
+    return setRegister(registerAddress, value)
 }
 function setIntPolarityLow () {
     // line 353
@@ -265,8 +265,8 @@ function waitForCalibrateAFE (timeout_ms: number) {
 /**
  * variables
  */
-let _zeroOffset
-let _calibrationFactor
+let _zeroOffset:any = 1
+let _calibrationFactor:any = 1
 let total = 0
 let revisionCode = 0
 
@@ -333,3 +333,4 @@ let CHANNEL_12 = 0
 // status codes
 let CAL_FAILURE = 2
 let CAL_IN_PROGRESS = 1
+let CAL_SUCCESS = 0
