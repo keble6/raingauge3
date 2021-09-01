@@ -21,6 +21,7 @@ function calibrateAFE () {
 function getBit (bitNumber: number, registerAddress: number) {
     // line 376
     let value = getRegister(registerAddress)
+    serial.writeLine("register value =" + valueRaw)
     value &= (1 << bitNumber)
 return value
 }
@@ -102,24 +103,33 @@ function begin (initialize: boolean) {
     }
     let result = 1
     if (initialize) {
+        serial.writeLine("result 0 =" + result)
         result &= reset()
+        serial.writeLine("result 1 =" + result)
         result &= powerUp()
+        serial.writeLine("result 2 =" + result)
         result &= setLDO(LDO_3V3)
+        serial.writeLine("result 3 =" + result)
         result &= setGain(GAIN_128)
+        serial.writeLine("result 4 =" + result)
         result &= setSampleRate(SPS_10)
+        serial.writeLine("result 5 =" + result)
         result &= setRegister(ADC, 0x30)
+        serial.writeLine("result 6 =" + result)
         result &= setBit(PGA_PWR_PGA_CAP_EN, PGA_PWR)
+        serial.writeLine("result 7 =" + result)
         result &= calibrateAFE()
+        serial.writeLine("result 8 =" + result)
     }
     return result
 }
 function powerUp () {
     //line 164
-    setBit(PU_CTRL_PUD, PU_CTRL)
-    setBit(PU_CTRL_PUA, PU_CTRL)
+    setBit(PU_CTRL_PUD, PU_CTRL) //power up digital
+    setBit(PU_CTRL_PUA, PU_CTRL) //power up analog
     let counter = 0
     while (true) {
-        if (getBit(PU_CTRL_PUR, PU_CTRL) == 1) {
+        if (getBit(PU_CTRL_PUR, PU_CTRL) == 1) { //read ready bit
             break
         }
         basic.pause(1)
@@ -338,7 +348,12 @@ let CAL_SUCCESS = 0
 //test I2C
 // Need to add debug in begin code!
 basic.forever(function () {
-    //let beginResult = begin(true)
+    let beginResult = begin(true)
+    //only 1st test (reset function) passes, and this is hard wired
+    // 2nd test reads 0 from power up register
+
+    //so I2C  fails??
+    
     //serial.writeLine("begin() =" + beginResult)
 
     let code = getRevisionCode()
