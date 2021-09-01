@@ -10,7 +10,7 @@ function getRegister (registerAddress: number) {
 }
 function getRevisionCode () {
     // line 228
-    revisionCode = getRegister(DEVICE_REV)
+    let revisionCode = getRegister(DEVICE_REV)
     return (revisionCode & 0x0F)
 }
 function calibrateAFE () {
@@ -20,17 +20,18 @@ function calibrateAFE () {
 }
 function getBit (bitNumber: number, registerAddress: number) {
     // line 376
-    value = getRegister(registerAddress)
+    let value = getRegister(registerAddress)
     value &= (1 << bitNumber)
 return value
 }
 function setGain (gainValue: number) {
     // line 215
-    value = gainValue
     if (gainValue > 7) {
-        value = 7
+        gainValue = 7
     }
-    value |= 0b11111000
+    let value = getRegister(CTRL1)
+    value &= 0b11111000
+    value |= gainValue
 return setRegister(CTRL1, value)
 }
 function setZeroOffset (newZeroOffset: number) {
@@ -39,18 +40,20 @@ function setZeroOffset (newZeroOffset: number) {
 }
 // line 199
 function setLDO (ldoValue: number) {
-    let PU_CTRL_AVDDS: null = null
-    value = getRegister(CTRL1)
+    if(ldoValue > 0b111){
+        ldoValue = 0b111
+    }
+    let value = getRegister(CTRL1)
     value &= 0b11000111
-value |= ldoValue << 3
-setRegister(CTRL1, value)
+    value |= ldoValue << 3
+    setRegister(CTRL1, value)
     return setBit(PU_CTRL_AVDDS, PU_CTRL)
 }
 function clearBit (bitNumber: number, registerAddress: number) {
     // line 368
-    value = getRegister(registerAddress)
+    let value = getRegister(registerAddress)
     value &= ~(1 << bitNumber)
-return setRegister(registerAddress, value)
+    return setRegister(registerAddress, value)
 }
 function setIntPolarityHigh () {
     // line 348
@@ -70,7 +73,8 @@ function beginCalibrateAFE () {
     // line 94
     setBit(CTRL2_CALS, CTRL2)
 }
-function calAFEStatus () {
+//not used - waitForCalibrateAFE now uses direct status call via getBit
+/*function calAFEStatus () {
     // line 100
     if (getBit(CTRL2_CALS, CTRL2) == 1) {
         return CAL_IN_PROGRESS
@@ -79,8 +83,10 @@ function calAFEStatus () {
     } else {
         return CAL_SUCCESS
     }
-}
+}*/
+
 function available () {
+    //line 77
     return getBit(PU_CTRL_CR, PU_CTRL)
 }
 function calculateZeroOffset (averageAmount: number) {
@@ -88,37 +94,38 @@ function calculateZeroOffset (averageAmount: number) {
     setZeroOffset(getAverage(averageAmount))
 }
 function begin (initialize: boolean) {
-    if (isConnected() == 0) {
-        if (isConnected() == 0) {
-            return 0
+    //line 30
+    if (isConnected() == false) {
+        if (isConnected() == false) { //2nd try
+            return false
         }
-    } else {
-        result = 1
     }
+    let result = 1
     if (initialize) {
         result &= reset()
-result &= powerUp()
-result &= setLDO(LDO_3V3)
-result &= setGain(GAIN_128)
-result &= setSampleRate(SPS_10)
-result &= setRegister(ADC, 0x30)
-result &= setBit(PGA_PWR_PGA_CAP_EN, PGA_PWR)
-result &= calibrateAFE()
+        result &= powerUp()
+        result &= setLDO(LDO_3V3)
+        result &= setGain(GAIN_128)
+        result &= setSampleRate(SPS_10)
+        result &= setRegister(ADC, 0x30)
+        result &= setBit(PGA_PWR_PGA_CAP_EN, PGA_PWR)
+        result &= calibrateAFE()
     }
     return result
 }
 function powerUp () {
+    //line 164
     setBit(PU_CTRL_PUD, PU_CTRL)
     setBit(PU_CTRL_PUA, PU_CTRL)
     let counter = 0
     while (true) {
-        let PU_CTRL_PUR: null = null
         if (getBit(PU_CTRL_PUR, PU_CTRL) == 1) {
-            basic.pause(1)
-            counter += 1
-            if (counter > 100) {
-                return 0
-            }
+            break
+        }
+        basic.pause(1)
+        counter += 1
+        if (counter > 100) {
+            return 0
         }
     }
     return 1
@@ -230,17 +237,16 @@ function calculateCalibrationFactor (weightOnScale: number, averageAmount: numbe
     let newCalFactor = (onScale - _zeroOffset) / weightOnScale
     setCalibrationFactor(newCalFactor)
 }
-// Test for ACK - dummy for now, casn ubit do this?
+// Test for ACK - dummy for now, can ubit do this?
 function isConnected () {
     // line 69
-    return 1
+    return true
 }
 function waitForCalibrateAFE (timeout_ms: number) {
     // line 119
     let t_begin = input.runningTime()
-    Cal_Status = 0
     while (true) {
-        cal_ready = calAFEStatus()
+        cal_ready = getBit(CTRL2_CALS, CTRL2) //new code to circumvent typedef
         if (cal_ready == CAL_IN_PROGRESS) {
             if (timeout_ms > 0) {
                 if (input.runningTime() - t_begin > timeout_ms) {
@@ -250,7 +256,7 @@ function waitForCalibrateAFE (timeout_ms: number) {
         }
         basic.pause(1)
     }
-    if (cal_ready == CAL_SUCCESS) {
+    if (getBit(CTRL2_CAL_ERROR, CTRL2) == CAL_SUCCESS) {
         return 1
     }
     return 0
@@ -322,10 +328,11 @@ let PGA_PWR = 28
 let DEVICE_REV = 31
 let PU_CTRL_PUD = 1
 let PU_CTRL_PUA = 2
+let PU_CTRL_PUR = 3
 let PU_CTRL_CS = 4
 let PU_CTRL_CR = 5
 let PU_CTRL_OSCS = 6
-let PU_CTRL_AVDDS2 = 7
+let PU_CTRL_AVDDS = 7
 let CTRL1_GAIN = 2
 let CTRL1_VLDO = 5
 let CTRL1_CRP = 7
