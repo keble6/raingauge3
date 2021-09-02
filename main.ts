@@ -6,7 +6,7 @@ function getRegister (registerAddress: number) {
     NumberFormat.UInt8BE,
     true
     )
-    return pins.i2cReadNumber(registerAddress, NumberFormat.UInt8BE, false)
+    return pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false)
 }
 function getRevisionCode () {
     // line 228
@@ -219,18 +219,10 @@ function reset () {
 }
 function setRegister (registerAddress: number, value: number) {
     // line 401
-    pins.i2cWriteNumber(
-    deviceAddress,
-    registerAddress,
-    NumberFormat.UInt8BE,
-    true
-    )
-    pins.i2cWriteNumber(
-    deviceAddress,
-    value,
-    NumberFormat.UInt8BE,
-    false
-    )
+    let buf = pins.createBuffer(2)
+    buf[0] = registerAddress
+    buf[1] = value
+    pins.i2cWriteBuffer(deviceAddress,buf)
     return 1
 }
 function setSampleRate (rate: number) {
