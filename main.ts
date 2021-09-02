@@ -84,7 +84,12 @@ function beginCalibrateAFE () {
 
 function available () {
     //line 77
-    return getBit(PU_CTRL_CR, PU_CTRL)
+    if (getBit(PU_CTRL_CR, PU_CTRL)){
+        return true
+    } else{
+        return false
+    }
+     
 }
 function calculateZeroOffset (averageAmount: number) {
     // line 293
@@ -97,26 +102,18 @@ function begin (initialize: boolean) {
             return false
         }
     }
-    let result = 1
+    let result = true
     if (initialize) {
-        serial.writeLine("result 0 =" + result)
-        result &= reset()
-        serial.writeLine("result 1 =" + result)
-        result &= powerUp()
-        serial.writeLine("result 2 =" + result)
-        result &= setLDO(LDO_3V3)
-        serial.writeLine("result 3 =" + result)
-        result &= setGain(GAIN_128)
-        serial.writeLine("result 4 =" + result)
-        result &= setSampleRate(SPS_10)
-        serial.writeLine("result 5 =" + result)
-        result &= setRegister(ADC, 0x30)
-        serial.writeLine("result 6 =" + result)
-        result &= setBit(PGA_PWR_PGA_CAP_EN, PGA_PWR)
-        serial.writeLine("result 7 =" + result)
-        result &= calibrateAFE()
-        serial.writeLine("result 8 =" + result)
+        result = result && reset()
+        result = result && powerUp()
+        result = result && setLDO(LDO_3V3)
+        result = result && setGain(GAIN_128)
+        result = result && setSampleRate(SPS_10)
+        result = result && setRegister(ADC, 0x30)
+        result = result && setBit(PGA_PWR_PGA_CAP_EN, PGA_PWR)
+        result = result && calibrateAFE()
     }
+    
     return result
 }
 function powerUp () {
@@ -137,10 +134,10 @@ function powerUp () {
         basic.pause(1)
         counter += 1
         if (counter > 100) {
-            return 0
+            return false
         }
     }
-    return 1
+    return true
 }
 function getAverage (averageAmount: number) {
     // line 269
@@ -148,7 +145,7 @@ function getAverage (averageAmount: number) {
     let samplesAquired = 0
     let startTime = input.runningTime()
     while (true) {
-        if (available() == 1) {
+        if (available() == true) {
             total += getReading()
             samplesAquired += 1
             if (samplesAquired == averageAmount) {
@@ -225,7 +222,7 @@ function setRegister (registerAddress: number, value: number) {
     buf[0] = registerAddress
     buf[1] = value
     pins.i2cWriteBuffer(deviceAddress,buf)
-    return 1
+    return true
 }
 function setSampleRate (rate: number) {
     // line 142
@@ -262,9 +259,9 @@ function waitForCalibrateAFE (timeout_ms: number) {
         basic.pause(1)
     }
     if (cal_ready == CAL_SUCCESS) {
-        return 1
+        return true
     }
-    return 0
+    return false
 }
 /**
  * variables
