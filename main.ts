@@ -1,17 +1,13 @@
 function getRegister (registerAddress: number) {
     // line 384
-    pins.i2cWriteNumber(
-    deviceAddress,
-    registerAddress,
-    NumberFormat.UInt8BE,
-    true
-    )
+    pins.i2cWriteNumber(deviceAddress,registerAddress,
+    NumberFormat.UInt8BE,false)
     return pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false)
 }
 function getRevisionCode () {
     // line 228
     let revisionCode = getRegister(DEVICE_REV)
-    return (revisionCode & 0x0F)
+    return (revisionCode)
 }
 function calibrateAFE () {
     // line 86
@@ -21,8 +17,8 @@ function calibrateAFE () {
 function getBit (bitNumber: number, registerAddress: number) {
     // line 376
     let value = getRegister(registerAddress)
-    serial.writeLine("register value =" + valueRaw)
     value &= (1 << bitNumber)
+    value = value >>> bitNumber // added because original returns a number, not a boolean!
 return value
 }
 function setGain (gainValue: number) {
@@ -127,6 +123,12 @@ function powerUp () {
     //line 164
     setBit(PU_CTRL_PUD, PU_CTRL) //power up digital
     setBit(PU_CTRL_PUA, PU_CTRL) //power up analog
+    //debug - bit 3 should be 1
+    let result=getRegister(PU_CTRL)
+    serial.writeLine("PU_CTRL =" + result)
+    result = getBit(PU_CTRL_PUR, PU_CTRL)
+    serial.writeLine("PU_PUR =" + result)
+    //end debug
     let counter = 0
     while (true) {
         if (getBit(PU_CTRL_PUR, PU_CTRL) == 1) { //read ready bit
@@ -270,15 +272,12 @@ function waitForCalibrateAFE (timeout_ms: number) {
 let _zeroOffset:any = 1
 let _calibrationFactor:any = 1
 let total = 0
-let revisionCode = 0
-
-let deviceAddress = 0
 let valueRaw = 0
 let LDO_3V3 = 4
 let GAIN_128 = 7
 let CHANNEL_2 = 1
 // I2C addresses
-deviceAddress = 42
+let deviceAddress = 42
 let PU_CTRL = 0
 let CTRL1 = 1
 let CTRL2 = 2
@@ -348,8 +347,8 @@ basic.forever(function () {
     
     //serial.writeLine("begin() =" + beginResult)
 
-    let code = getRevisionCode()
-    basic.pause(5000)
-    serial.writeLine("rev code =" + code)
+   // let code = getRevisionCode()
+    //serial.writeLine("rev code =" + code)
+    //basic.pause(5000)
 
 })
