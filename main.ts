@@ -105,13 +105,21 @@ function begin (initialize: boolean) {
     let result = true
     if (initialize) {
         result = result && reset()
+        serial.writeLine("init1 =" + result)
         result = result && powerUp()
+        serial.writeLine("init2 =" + result)
         result = result && setLDO(LDO_3V3)
+        serial.writeLine("init3 =" + result)
         result = result && setGain(GAIN_128)
+        serial.writeLine("init4 =" + result)
         result = result && setSampleRate(SPS_10)
+        serial.writeLine("init5 =" + result)
         result = result && setRegister(ADC, 0x30)
+        serial.writeLine("init6 =" + result)
         result = result && setBit(PGA_PWR_PGA_CAP_EN, PGA_PWR)
+        serial.writeLine("init7 =" + result)
         result = result && calibrateAFE()
+        serial.writeLine("init8 =" + result)
     }
     
     return result
@@ -122,9 +130,9 @@ function powerUp () {
     setBit(PU_CTRL_PUA, PU_CTRL) //power up analog
     //debug - bit 3 should be 1
     let result=getRegister(PU_CTRL)
-    serial.writeLine("PU_CTRL =" + result)
-    result = getBit(PU_CTRL_PUR, PU_CTRL)
-    serial.writeLine("PU_PUR =" + result)
+    //serial.writeLine("PU_CTRL =" + result)
+    //result = getBit(PU_CTRL_PUR, PU_CTRL)
+    //serial.writeLine("PU_PUR =" + result)
     //end debug
     let counter = 0
     while (true) {
@@ -335,17 +343,8 @@ let CAL_SUCCESS = 0
 
 //test I2C
 // Need to add debug in begin code!
-basic.forever(function () {
-    let beginResult = begin(true)
-    //only 1st test (reset function) passes, and this is hard wired
-    // 2nd test reads 0 from power up register
-
-    //so I2C  fails??
-    
-    //serial.writeLine("begin() =" + beginResult)
-
-   // let code = getRevisionCode()
-    //serial.writeLine("rev code =" + code)
-    //basic.pause(5000)
-
-})
+serial.writeLine("")
+serial.writeLine("S T A R T I N G !")
+serial.writeLine("begin result =" + begin(true))
+serial.writeLine("Rev code = " + getRevisionCode())
+serial.writeLine("DEVICE_REV = " + DEVICE_REV)
