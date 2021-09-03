@@ -239,6 +239,11 @@ function setSampleRate(rate: number) {
     value |= rate << 4  //Mask in new CRS bits
     return setRegister(CTRL2, value)
 }
+function setZeroOffset(newZeroOffset: number) {
+    // line 299
+    _zeroOffset = newZeroOffset
+}
+
 function waitForCalibrateAFE (timeout_ms: number) {
     // line 119
     let t_begin = input.runningTime()
@@ -326,15 +331,15 @@ let CAL_SUCCESS = 0
 // Need to add debug in begin code!
 serial.writeLine("")
 serial.writeLine("S T A R T I N G !")
-serial.writeLine("begin result =" + begin(true))
+serial.writeLine("begin =" + begin(true))
 serial.writeLine("Rev code = " + getRevisionCode())
-serial.writeLine("DEVICE_REV = " + DEVICE_REV)
-
-
-function setZeroOffset(newZeroOffset: number) {
-    // line 299
-    _zeroOffset = newZeroOffset
+while (true)  {
+    serial.writeLine("Reading = " + getReading())
+    basic.pause(1000)
 }
+
+
+
 
 
 
