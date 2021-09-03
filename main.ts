@@ -64,7 +64,7 @@ function clearBit(bitNumber: number, registerAddress: number) {
 }
 function getAverage(averageAmount: number) {
     // line 269
-    total = 0
+    let total = 0
     let samplesAquired = 0
     let startTime = input.runningTime()
     while (true) {
@@ -101,7 +101,7 @@ function getReading() {
         NumberFormat.UInt8BE,
         false
     )
-    valueRaw = pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false) << 16
+    let valueRaw = pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false) << 16
     valueRaw |= pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false) << 8
     valueRaw |= pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false)
     let valueShifted = valueRaw << 8
@@ -243,12 +243,9 @@ function waitForCalibrateAFE (timeout_ms: number) {
     // line 119
     let t_begin = input.runningTime()
     let cal_ready = 0
-    while (true) {
-        cal_ready = getBit(CTRL2_CALS, CTRL2) //new code to circumvent typedef
-        if (cal_ready == CAL_IN_PROGRESS) {
-            if ((timeout_ms > 0) && (input.runningTime() - t_begin > timeout_ms)) {
-                    break;
-            }
+    while ((cal_ready = getBit(CTRL2_CALS, CTRL2)) == CAL_IN_PROGRESS) {
+        if ((timeout_ms > 0) && ((input.runningTime() - t_begin) > timeout_ms)) {
+            break;
         }
         basic.pause(1)
     }
@@ -262,8 +259,6 @@ function waitForCalibrateAFE (timeout_ms: number) {
  */
 let _zeroOffset:any = 1
 let _calibrationFactor:any = 1
-let total = 0
-let valueRaw = 0
 let LDO_3V3 = 4
 let GAIN_128 = 7
 let CHANNEL_2 = 1
