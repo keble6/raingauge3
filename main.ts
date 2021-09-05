@@ -104,6 +104,7 @@ function getReading() {
     let valueRaw = pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false) << 16
     valueRaw |= pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false) << 8
     valueRaw |= pins.i2cReadNumber(deviceAddress, NumberFormat.UInt8BE, false)
+    //serial.writeLine("valueRaw = " + valueRaw)
     let valueShifted = valueRaw << 8
     return valueShifted >> 8
 }
@@ -334,8 +335,10 @@ serial.writeLine("S T A R T I N G !")
 serial.writeLine("begin =" + begin(true))
 serial.writeLine("Rev code = " + getRevisionCode())
 while (true)  {
-    serial.writeLine("Reading = " + getReading())
-    basic.pause(1000)
+    //getReading()
+    serial.writeLine("Reading = " + getReading()/1000)
+    serial.writeLine("")
+    basic.pause(5000)
 }
 
 
